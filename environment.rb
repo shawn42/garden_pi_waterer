@@ -10,9 +10,11 @@ end
 
 require 'forecast_io'
 ForecastIO.configure do |configuration|
-  configuration.api_key = ENV['FORECAST_IO_API_KEY']
+  # please change this before using
+  configuration.api_key = 'e99eac6f544ed1382750c36244e0094e'
 end
-GARDEN_LATITUDE = ENV['GARDEN_LATITUDE']
-GARDEN_LONGITUDE = ENV['GARDEN_LONGITUDE']
+# Holland, MI
+GARDEN_LATITUDE = 42.7814
+GARDEN_LONGITUDE = -86.1111
 
 require_relative 'garden'
