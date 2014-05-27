@@ -2,17 +2,17 @@ require 'clockwork'
 require 'pry'
 require 'sqlite3'
 
-begin
+RUNNING_ON_PI = RbConfig::CONFIG['rubyarchdir'] =~ /^arm/
+if RUNNING_ON_PI
   require 'pi_piper'
   require "i2c/i2c"
-rescue LoadError => ex
-  puts 'load error, are you on the Pi?'
-  # p ex
 end
 
 require 'forecast_io'
 ForecastIO.configure do |configuration|
-  configuration.api_key = 'e99eac6f544ed1382750c36244e0094e'
+  configuration.api_key = ENV['FORECAST_IO_API_KEY']
 end
+GARDEN_LATITUDE = ENV['GARDEN_LATITUDE']
+GARDEN_LONGITUDE = ENV['GARDEN_LONGITUDE']
 
 require_relative 'garden'

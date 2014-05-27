@@ -1,12 +1,9 @@
 require_relative 'environment'
 
 include Clockwork
-lat = 42.7814
-long = -86.1111
-garden = Garden.new lat, long
+garden = Garden.new GARDEN_LATITUDE, GARDEN_LONGITUDE
 
-# every(1.day, 'water_if_needed_daily', at: '00:00') do
-every(10.seconds, 'water_if_needed_quickly') do
+every(1.day, 'water_if_needed_daily', at: '22:05') do
   garden.auto_water
 end
 

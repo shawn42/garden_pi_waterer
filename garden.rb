@@ -3,12 +3,16 @@ class Garden
   CONFIGS = [ [193, 131], [209, 131] ]
   LIGHT_SENSOR = 0
   MOISTURE_SENSOR = 1
+  I2C_DEVICE_ID = 1
+  ADC_ADDRESS = 0x48
 
   def initialize(lat, long)
     @lat = lat
     @long = long
-    # @pin = PiPiper::Pin.new(pin: WATERING_PIN, direction: :out)
-    # @bus = ::I2C.create("/dev/i2c-1")
+    if RUNNING_ON_PI
+      @pin = PiPiper::Pin.new(pin: WATERING_PIN, direction: :out)
+      @bus = ::I2C.create("/dev/i2c-1")
+    end
     @db = SQLite3::Database.new "garden.db"
     build_missing_tables
     stop_watering
@@ -29,9 +33,9 @@ class Garden
 
   private
   def read_sensor(channel)
-    return 555
-    @bus.write(0x48, 1, *CONFIGS[channel])
-    result = @bus.read(0x48, 0x02, 0).unpack('CC')
+    return unless RUNNING_ON_PI
+    @bus.write(ADC_ADDRESS, I2C_DEVICE_ID, *CONFIGS[channel])
+    result = @bus.read(ADC_ADDRESS, 0x02, 0).unpack('CC')
     ((result.first << 8) | (result.last & 0xFF)) >> 4
   end
 
@@ -54,16 +58,22 @@ class Garden
 
   def water
     start_watering
-    sleep(60*30) # water for 30 min
+    sleep watering_duration
     stop_watering
   end
 
+  def watering_duration
+    30
+  end
+
   def start_watering
-    puts "@pin.on"
+    puts "start watering"
+    @pin.on if RUNNING_ON_PI
   end
 
   def stop_watering
-    puts "@pin.off"
+    puts "stop watering"
+    @pin.off if RUNNING_ON_PI
   end
 
   def rain_is_coming?
