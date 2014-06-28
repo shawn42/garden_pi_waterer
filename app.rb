@@ -4,8 +4,11 @@ include Clockwork
 garden = Garden.new GARDEN_LATITUDE, GARDEN_LONGITUDE
 puts "Found your garden at #{GARDEN_LATITUDE}, #{GARDEN_LONGITUDE}"
 
-every(1.day, 'water_if_needed_daily', at: '22:05') do
+every(1.day, 'water_if_needed_daily', at: '13:46') do
   garden.auto_water
+end
+every(5.minutes, 'record_readings') do
+  garden.record_sensor_data
 end
 
 Clockwork::run

@@ -26,6 +26,7 @@
 # 
 
 RETVAL=0
+god_location="/usr/local/rvm/bin/bootup_god"
 god_conf="/home/pi/god.conf"
 god_pid_file="/var/run/god/god.pid" ; mkdir -p `dirname $god_pid_file`
 god_log_file="/var/log/god/god.log" ; mkdir -p `dirname $god_log_file`
@@ -35,7 +36,7 @@ god_log_file="/var/log/god/god.log" ; mkdir -p `dirname $god_log_file`
 
 case "$1" in
   start)
-    /usr/local/rvm/gems/ruby-2.1.1/bin/god -c "$god_conf" -P "$god_pid_file" -l "$god_log_file"
+    $god_location -c "$god_conf" -P "$god_pid_file" -l "$god_log_file"
     #usr/local/bin/god -c "$god_conf" -P "$god_pid_file" -l "$god_log_file"
     RETVAL=$?
     echo "God started"
@@ -49,7 +50,7 @@ case "$1" in
   restart)
     (kill `cat $god_pid_file` 2>&1) >/dev/null
     #kill `cat $god_pid_file`
-    /usr/local/rvm/gems/ruby-2.1.1/bin/god -c "$god_conf" -P "$god_pid_file" -l "$god_log_file"
+    $god_location -c "$god_conf" -P "$god_pid_file" -l "$god_log_file"
     #usr/local/bin/god -c "$god_conf" -P "$god_pid_file" -l "$god_log_file"
     RETVAL=$?
     echo "God restarted"

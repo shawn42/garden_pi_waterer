@@ -2,7 +2,7 @@ require 'clockwork'
 require 'pry'
 require 'sqlite3'
 
-RUNNING_ON_PI = RbConfig::CONFIG['rubyarchdir'] =~ /^arm/
+RUNNING_ON_PI = RbConfig::CONFIG['rubyarchdir'] =~ /arm/
 if RUNNING_ON_PI
   require 'pi_piper'
   require "i2c/i2c"
