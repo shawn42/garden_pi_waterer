@@ -1,3 +1,4 @@
+require 'awesome_print'
 require 'clockwork'
 require 'pry'
 require 'sqlite3'

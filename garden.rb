@@ -8,6 +8,9 @@ class Garden
   STOP_WATERING_STATUS = 0
   START_WATERING_STATUS = 1
 
+  # 50% of 1 in of rain
+  RAIN_THRESHOLD = 0.5 * 1.0 / 24
+
   def initialize(lat, long)
     @lat = lat
     @long = long
@@ -29,17 +32,27 @@ class Garden
   end
 
   def auto_water
+    update_forecast
     record_sensor_data
     water unless rain_is_coming?
   end
 
+  def update_forecast
+    @forecast = ForecastIO.forecast @lat, @long
+  end
+
+  # https://developer.forecast.io/docs/v2#forecast_call
+  # precipIntensity: A numerical value representing the average expected
+  # intensity (in inches of liquid water per hour) of precipitation occurring
+  # at the given time conditional on probability (that is, assuming any
+  # precipitation occurs at all).
   def rain_is_coming?
-    forecast = ForecastIO.forecast @lat, @long
-    today_and_tomorrow = forecast["daily"]["data"][0..1]
-    puts today_and_tomorrow
-    rain_is_coming = today_and_tomorrow.any?{|d| d["precipType"] == "rain" && 
-                                            d["precipProbability"] > 0.5}
-    puts "rain_is_coming?: #{rain_is_coming}"
+    today_and_tomorrow = @forecast["daily"]["data"][0..1]
+
+    rain_is_coming = today_and_tomorrow.any? do |d| 
+      d["precipType"] == "rain" && 
+        (d["precipProbability"] * d["precipIntensity"]) > RAIN_THRESHOLD
+    end
     rain_is_coming
   end
 
@@ -105,8 +118,24 @@ class Garden
     stop_watering
   end
 
+  TARGET_INCHES_WATER_PER_DAY = 1.25
   def watering_duration_in_sec
-    45 * 60
+
+    water_for_target TARGET_INCHES_WATER_PER_DAY, 
+      tomorrow["precipProbability"] * tomorrow["precipIntensity"]
+  end
+
+  def water_for_target(target, rain_factor)
+    hours_in_a_day = 24
+    gallons_per_hour_by_soaker_hose = 60
+    seconds_per_hour = 60 * 60
+    cubic_inches_in_a_gallon = 231
+    sq_inches_of_garden = 4*12 * 12*12
+    gallons_of_natural_water = rain_factor * hours_in_a_day * sq_inches_of_garden / cubic_inches_in_a_gallon
+
+    gallons_to_water = (target * sq_inches_of_garden / cubic_inches_in_a_gallon) - gallons_of_natural_water
+    
+    seconds_to_water = gallons_to_water / gallons_per_hour_by_soaker_hose * seconds_per_hour
   end
 
 end
