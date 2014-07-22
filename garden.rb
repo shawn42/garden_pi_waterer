@@ -120,7 +120,7 @@ class Garden
 
   TARGET_INCHES_WATER_PER_DAY = 1.25
   def watering_duration_in_sec
-
+    tomorrow = @forecast["daily"]["data"][1]
     water_for_target TARGET_INCHES_WATER_PER_DAY, 
       tomorrow["precipProbability"] * tomorrow["precipIntensity"]
   end
